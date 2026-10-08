@@ -1,0 +1,715 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Equation Practice</title>
+<style>
+:root{
+  --bg:#fff4d6; --card:#ffffff; --ink:#111111; --muted:#4a4a4a; --line:#111111;
+  --yellow:#ffd93d; --pink:#ff8fd8; --blue:#8ec5ff; --lime:#a8f08a; --orange:#ffb25c; --purple:#c9a8ff; --red:#e0261b;
+  --blue-bg:var(--blue); --purple-bg:var(--purple); --green-bg:var(--lime); --orange-bg:var(--orange);
+  --amber-bg:var(--yellow); --math:"STIX Two Math","Latin Modern Math","Cambria Math","Times New Roman",Georgia,serif;
+  --mono:ui-monospace,"SF Mono","Cascadia Mono",Menlo,Consolas,monospace;
+  --b:3px solid var(--ink); --sh:5px 5px 0 var(--ink);
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;color:var(--ink);background-color:var(--bg);
+  background-image:radial-gradient(#11111122 1.2px,transparent 1.3px);background-size:18px 18px;
+  font:16px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+::selection{background:var(--pink)}
+.wrap{max-width:860px;margin:0 auto;padding:22px 16px 120px}
+h1{display:inline-block;font-size:clamp(26px,6vw,40px);font-weight:900;letter-spacing:-.02em;line-height:1.1;
+  margin:6px 0 14px;padding:6px 16px;background:var(--yellow);border:4px solid var(--ink);box-shadow:6px 6px 0 var(--ink);
+  transform:rotate(-1deg);text-transform:uppercase}
+.sub{margin:0 0 16px;font-size:17px;max-width:620px}
+.rule{background:var(--pink);border:var(--b);box-shadow:var(--sh);padding:10px 14px;margin:0 0 16px;font-weight:600}
+.rule b{background:var(--ink);color:#fff;padding:0 6px}
+.legend{display:flex;flex-wrap:wrap;gap:10px 16px;font-size:14px;font-weight:600;margin:0 0 16px}
+.legend span.k{display:inline-block;padding:0 8px;font-family:var(--math);font-weight:700;font-size:16px}
+details.rem{background:var(--card);border:var(--b);box-shadow:var(--sh);padding:10px 14px;margin:0 0 20px}
+details.rem summary{cursor:pointer;font-weight:800;text-transform:uppercase;font-size:14px;letter-spacing:.04em}
+details.rem ul{margin:10px 0 4px;padding-left:20px}
+details.rem li{margin:6px 0}
+
+.tabs{display:flex;gap:10px;overflow-x:auto;padding:6px 8px 14px 2px}
+.tab{flex:0 0 auto;width:46px;height:46px;border:var(--b);background:var(--card);color:var(--ink);
+  font:800 17px var(--mono);cursor:pointer;position:relative;box-shadow:3px 3px 0 var(--ink);
+  transition:transform .08s,box-shadow .08s}
+.tab:hover{background:var(--yellow)}
+.tab:active{transform:translate(3px,3px);box-shadow:0 0 0 var(--ink)}
+.tab.on{background:var(--pink);transform:translate(3px,3px);box-shadow:0 0 0 var(--ink)}
+.tab.done::after{content:"✓";position:absolute;right:-8px;top:-9px;width:20px;height:20px;background:var(--lime);
+  border:2px solid var(--ink);color:var(--ink);font:900 12px/16px system-ui;text-align:center}
+.card{background:var(--card);border:4px solid var(--ink);box-shadow:9px 9px 0 var(--ink);padding:18px 16px 14px}
+.tag{display:inline-block;font:800 12.5px var(--mono);text-transform:uppercase;letter-spacing:.03em;
+  background:var(--blue);border:2px solid var(--ink);padding:3px 10px}
+.prob{font-family:var(--math);font-size:clamp(30px,7.5vw,48px);text-align:center;margin:14px 0 6px;line-height:1.5}
+.words{margin:10px 0 0;font-size:17px;border-left:6px solid var(--ink);padding:4px 12px;background:var(--yellow)}
+.try{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:center;margin:12px 0 4px}
+.try label{font-weight:800}
+.try input{width:120px;font:700 22px var(--math);padding:7px 10px;border:var(--b);border-radius:0;background:#fff;
+  color:var(--ink);text-align:center;box-shadow:3px 3px 0 var(--ink)}
+.try input:focus{outline:none;background:var(--yellow)}
+.btn{font:800 15px system-ui;text-transform:uppercase;letter-spacing:.03em;padding:10px 16px;border:var(--b);
+  border-radius:0;background:#fff;color:var(--ink);cursor:pointer;min-height:46px;box-shadow:4px 4px 0 var(--ink);
+  transition:transform .08s,box-shadow .08s,background .08s}
+.btn:hover{background:var(--yellow)}
+.btn:active{transform:translate(4px,4px);box-shadow:0 0 0 var(--ink)}
+.btn:disabled{opacity:.35;cursor:default;box-shadow:none;transform:none;background:#ddd}
+.btn.primary{background:var(--pink)}
+.btn.primary:hover{background:var(--yellow)}
+.fb{min-height:30px;text-align:center;font-weight:700;margin:6px 0 0}
+.fb.ok,.fb.no{display:table;margin:8px auto 0;padding:3px 12px;border:2px solid var(--ink)}
+.fb.ok{background:var(--lime)} .fb.no{background:var(--orange)}
+hr{border:0;border-top:4px solid var(--ink);margin:14px 0}
+
+.board{min-height:120px}
+.placeholder{text-align:center;padding:26px 8px;font-weight:600;border:3px dashed var(--ink);background:#fffbe9}
+.step{padding:12px 4px 14px;border-bottom:3px dashed #11111155;transition:opacity .5s}
+.step.old{opacity:.45}
+.step:last-child{border-bottom:0}
+.oppill{display:flex;justify-content:center;margin:0 0 8px;animation:fade .4s both}
+.oppill span{background:var(--orange);border:2px solid var(--ink);box-shadow:3px 3px 0 var(--ink);
+  font:800 13px var(--mono);text-transform:uppercase;padding:2px 12px}
+.eqline{display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:8px 14px;
+  font-family:var(--math);font-size:clamp(24px,6vw,40px);line-height:1.2;padding:6px 0}
+.chip{display:inline-flex;align-items:center;white-space:nowrap;padding:3px 7px;will-change:transform}
+.chip.eq{padding:3px 4px;font-weight:700}
+.chip.wob{animation:wob .9s ease-in-out both}
+.chip i{font-style:italic}
+.frac{display:inline-flex;flex-direction:column;align-items:center;vertical-align:middle;margin:0 3px;line-height:1.15}
+.frac>span:first-child{border-bottom:3px solid currentColor;padding:0 .2em .04em}
+.frac>span:last-child{padding:.04em .2em 0}
+.c1,.c2,.gr,.op{border:2px solid var(--ink);padding:0 6px;color:var(--ink)}
+.c1{background:var(--blue)} .c2{background:var(--purple)}
+.gr{background:var(--lime);font-weight:700} .op{background:var(--orange);font-weight:700;box-shadow:3px 3px 0 var(--ink)}
+.cx{position:relative;color:var(--red);display:inline-block;padding:0 3px;font-weight:700}
+.cx::after{content:"";position:absolute;left:-6%;right:-6%;top:50%;height:0;border-top:4px solid var(--red);
+  transform:rotate(-14deg) scaleX(0);transform-origin:left center;animation:slash .45s .45s ease-out forwards}
+.pop{animation:pop .55s cubic-bezier(.2,1.4,.4,1) both}
+.drop{animation:drop .6s cubic-bezier(.2,1.2,.4,1) both}
+.say{margin:2px auto 0;max-width:640px;text-align:center;font-size:17px;animation:fade .5s .15s both}
+.say .m,.why .m,.warn .m{font-family:var(--math);font-size:1.12em;white-space:nowrap}
+.say b{font-weight:800;background:var(--yellow);padding:0 3px}
+.whyrow{text-align:center}
+.whybtn{display:inline-block;margin:8px auto 0;border:2px solid var(--ink);background:var(--lime);box-shadow:2px 2px 0 var(--ink);
+  font:800 12.5px var(--mono);text-transform:uppercase;padding:3px 12px;cursor:pointer}
+.whybtn:active{transform:translate(2px,2px);box-shadow:none}
+.why,.warn{max-width:640px;margin:10px auto 0;border:var(--b);padding:8px 14px;font-size:15.5px;text-align:left;
+  box-shadow:4px 4px 0 var(--ink);animation:fade .4s both}
+.why{background:#fff;display:none}
+.why.open{display:block}
+.warn{background:var(--yellow);font-weight:600}
+.step.final .eqline{animation:glow 1.4s ease-out both}
+.step.final .say{font-weight:700}
+.step.check .eqline{font-size:clamp(22px,5.4vw,34px)}
+.banner{margin-top:16px;background:var(--lime);border:var(--b);box-shadow:var(--sh);padding:10px 16px;
+  font-weight:800;text-align:center;animation:fade .5s both}
+
+.controls{position:fixed;left:0;right:0;bottom:0;background:var(--yellow);border-top:4px solid var(--ink);
+  padding:10px 12px calc(10px + env(safe-area-inset-bottom));z-index:5}
+.controls .in{max-width:860px;margin:0 auto;display:flex;gap:10px;align-items:center}
+.prog{flex:1;min-width:60px}
+.prog .t{font:800 12px var(--mono);text-transform:uppercase;text-align:center;margin-bottom:3px}
+.prog .b{height:14px;background:#fff;border:3px solid var(--ink)}
+.prog .b div{height:100%;width:0;background:var(--pink);border-right:3px solid var(--ink);transition:width .4s}
+.btn.next{min-width:150px}
+.foot{font-size:13px;text-align:center;margin-top:24px;font-weight:600}
+
+@keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+@keyframes pop{0%{opacity:0;transform:scale(.3)}100%{opacity:1;transform:scale(1)}}
+@keyframes drop{0%{opacity:0;transform:translateY(-30px) scale(.8)}100%{opacity:1;transform:none}}
+@keyframes slash{to{transform:rotate(-14deg) scaleX(1)}}
+@keyframes wob{0%,100%{transform:rotate(0)}25%{transform:rotate(-14deg)}60%{transform:rotate(10deg)}85%{transform:rotate(-4deg)}}
+@keyframes glow{0%{background:var(--lime)}100%{background:transparent}}
+@media (prefers-reduced-motion:reduce){
+  *{animation-duration:.01ms !important;animation-delay:0s !important;transition-duration:.01ms !important}
+}
+@media (max-width:520px){
+  .btn.next{min-width:0;flex:1;white-space:nowrap;font-size:13px;padding:10px 8px}
+  .btn.hide-s{display:none}
+  .card{box-shadow:6px 6px 0 var(--ink)}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Equation Practice</h1>
+  <p class="sub">Try each problem on paper first. Then click <b>Next step</b> to watch it solved, one move at a time.</p>
+
+  <div class="rule"><b>Golden rule:</b> whatever you do to one side of the equation, do to the <b>other side</b> too. That keeps the scale balanced.</div>
+
+  <div class="legend">
+    <span><span class="k op">× 4</span> what we do to both sides</span>
+    <span><span class="k cx">4</span> cancels out</span>
+    <span><span class="k c1">4x</span> <span class="k c2">+ 8</span> like terms</span>
+    <span><span class="k gr">28</span> new result</span>
+  </div>
+
+  <details class="rem">
+    <summary>Quick reminders</summary>
+    <ul>
+      <li><b>Like terms</b> have the same letter part. <span class="mm" data-m="4x + 3x = 7x"></span> (4 x's plus 3 x's is 7 x's). Plain numbers only combine with plain numbers.</li>
+      <li><b>Undo with the opposite:</b> <span class="mm" data-m="+"></span> and <span class="mm" data-m="-"></span> undo each other; <span class="mm" data-m="×"></span> and <span class="mm" data-m="÷"></span> undo each other. Undo in <b>reverse order</b>, and always on <b>both sides</b>.</li>
+      <li><b>Cancelling:</b> a number divided by itself is 1, so <span class="mm" data-m="[x|4] × 4 = x"></span> and <span class="mm" data-m="[3x|3] = x"></span>.</li>
+      <li><b>Check</b> every answer by putting it back into the original equation.</li>
+    </ul>
+  </details>
+
+  <div class="tabs" id="tabs" role="tablist" aria-label="Problems"></div>
+
+  <div class="card">
+    <span class="tag" id="tag"></span>
+    <div class="prob" id="prob"></div>
+    <p class="words" id="words" hidden></p>
+    <div class="try">
+      <label for="ans">Your answer: <i style="font-family:var(--math)">x</i> =</label>
+      <input id="ans" inputmode="text" autocomplete="off" placeholder="?" aria-label="Your answer">
+      <button class="btn" id="chk">Check</button>
+    </div>
+    <div class="fb" id="fb" aria-live="polite"></div>
+    <hr>
+    <div class="board" id="board"></div>
+  </div>
+  <p class="foot">Tip: use the <b>→</b> and <b>←</b> keys to move through the steps.</p>
+</div>
+
+<div class="controls">
+  <div class="in">
+    <button class="btn hide-s" id="back">◀ Back</button>
+    <button class="btn" id="reset" title="Start this problem over" aria-label="Start over">↺</button>
+    <div class="prog"><div class="t" id="count"></div><div class="b"><div id="bar"></div></div></div>
+    <button class="btn primary next" id="next">Next step ▶</button>
+  </div>
+</div>
+
+<script>
+/* ====================================================================
+   PROBLEMS  (edit here to add your own!)
+   Step "eq" syntax (chips are separated by spaces):
+     [a|b]        stacked fraction            {_:...}  plain chip
+     {1:...} blue (like terms)   {2:...} purple   {g:...} green result
+     {o:...} orange "do to both sides"   {c:...} red, cancelled
+     {g@K:...}    optional key K: a chip with the same key in the next line
+                  flies to its new position.
+   ==================================================================== */
+/*PROBLEMS_START*/
+const PROBLEMS = [
+{ tag:"One-step · add or subtract", eq:"x + 9 = 4", ans:"-5", steps:[
+  {eq:"x {_:+ 9} = 4",
+   say:"We want `x` **all by itself**. Right now `+ 9` is stuck to it."},
+  {eq:"x {_:+ 9} {o:- 9} = 4 {o@R:- 9}", op:"− 9",
+   say:"The opposite of `+ 9` is `− 9`. Do it to **both sides** so the equation stays balanced.",
+   why:"An equation is like a balance scale. If you take 9 off one side only, it tips over. Take 9 off both sides and it stays level, so it is still true."},
+  {eq:"x {c:+ 9} {c:- 9} = 4 {o@R:- 9}",
+   say:"`+ 9` and `− 9` cancel: `9 − 9 = 0`. Only `x` is left on the left side."},
+  {eq:"x = {g@R:-5}",
+   say:"Right side: `4 − 9 = −5`. Answers are allowed to be negative!"},
+  {eq:"(-5) {_:+ 9} = 4", check:true,
+   say:"**Check:** put `x = −5` back into the original equation."},
+  {eq:"{g:4} = {g:4} {g:✓}", check:true,
+   say:"`−5 + 9 = 4` ✓. Both sides match, so `x = −5` is right."}
+]},
+
+{ tag:"One-step · multiply or divide (the big idea)", eq:"[x|4] = 7", ans:"28", steps:[
+  {eq:"[x|4] = 7",
+   say:"`x/4` means “`x` divided by 4”. We want `x` alone, so we have to get rid of the `÷ 4`."},
+  {eq:"[x|4] {o:× 4} = 7 {o@R:× 4}", op:"× 4",
+   say:"The opposite of `÷ 4` is `× 4`. Multiply **both sides** by 4.",
+   why:"Picture `x` cut into 4 equal pieces. One piece is worth 7. So the whole `x` is 4 pieces: 4 × 7. Also: `÷ 4` and `× 4` undo each other, like tying and untying a knot. And we do it on both sides, or the scale tips."},
+  {eq:"[x|{c:4}] {c:× 4} = 7 {o@R:× 4}",
+   say:"The `4` on the bottom and the `× 4` **cancel** (`4 ÷ 4 = 1`). That leaves just `x`.",
+   why:"`x/4 × 4` means: divide by 4, then multiply by 4. You end up exactly where you started: `x`. That is why we multiply: it makes the 4s cancel."},
+  {eq:"{g@X:x} = 7 {g@R:× 4}",
+   say:"Now the right side: `7 × 4`."},
+  {eq:"{_@X:x} = {g@R:28}",
+   say:"`7 × 4 = 28`, so `x = 28`."},
+  {eq:"[28|4] = 7", check:true,
+   say:"**Check:** put `x = 28` back in: `28 ÷ 4`."},
+  {eq:"{g:7} = {g:7} {g:✓}", check:true,
+   say:"`28 ÷ 4 = 7` ✓."}
+]},
+
+{ tag:"Two-step equation", eq:"3x + 5 = 20", ans:"5", steps:[
+  {eq:"3x {_:+ 5} = 20",
+   say:"Two things are attached to `x`: it is multiplied by 3, and 5 is added. Undo them in **reverse order**: first `+ 5`, then `× 3`.",
+   why:"Think of socks and shoes. You put socks on first, then shoes. To undo, shoes come off first. Here `× 3` happened first and `+ 5` second, so `+ 5` comes off first."},
+  {eq:"3x {_:+ 5} {o:- 5} = 20 {o@R:- 5}", op:"− 5",
+   say:"Subtract 5 from **both sides**."},
+  {eq:"3x {c:+ 5} {c:- 5} = 20 {o@R:- 5}",
+   say:"`+ 5 − 5 = 0`. They cancel."},
+  {eq:"3x = {g@R:15}",
+   say:"`20 − 5 = 15`."},
+  {eq:"3x {o:÷ 3} = 15 {o:÷ 3}", op:"÷ 3",
+   say:"Now `x` is multiplied by 3. Divide **both sides** by 3."},
+  {eq:"[{c:3}x|{c:3}] = [15|3]",
+   say:"`3x/3`: the 3s cancel and leave `x`. On the right `15 ÷ 3`."},
+  {eq:"{g@X:x} = {g:5}",
+   say:"`x = 5`."},
+  {eq:"3(5) {_:+ 5} = 20", check:true,
+   say:"**Check:** put `x = 5` back in."},
+  {eq:"{g:20} = {g:20} {g:✓}", check:true,
+   say:"`3 × 5 + 5 = 20` ✓."}
+]},
+
+{ tag:"Two-step with a fraction", eq:"[x|3] - 2 = 5", ans:"21", steps:[
+  {eq:"[x|3] {_:- 2} = 5",
+   say:"`x` is divided by 3, then 2 is subtracted. Undo in reverse order: first `− 2`, then `÷ 3`."},
+  {eq:"[x|3] {_:- 2} {o:+ 2} = 5 {o@R:+ 2}", op:"+ 2",
+   say:"The opposite of `− 2` is `+ 2`. Add 2 to **both sides**."},
+  {eq:"[x|3] {c:- 2} {c:+ 2} = 5 {o@R:+ 2}",
+   say:"`− 2 + 2 = 0`. They cancel."},
+  {eq:"[x|3] = {g@R:7}",
+   say:"`5 + 2 = 7`."},
+  {eq:"[x|3] {o:× 3} = 7 {o@R:× 3}", op:"× 3",
+   say:"Now undo `÷ 3` the same way as before: multiply **both sides** by 3."},
+  {eq:"[x|{c:3}] {c:× 3} = 7 {o@R:× 3}",
+   say:"The `3` on the bottom cancels with `× 3`."},
+  {eq:"{g@X:x} = {g@R:21}",
+   say:"`7 × 3 = 21`, so `x = 21`."},
+  {eq:"[21|3] {_:- 2} = 5", check:true,
+   say:"**Check:** put `x = 21` back in."},
+  {eq:"{g:5} = {g:5} {g:✓}", check:true,
+   say:"`21 ÷ 3 = 7`, then `7 − 2 = 5` ✓."}
+]},
+
+{ tag:"Combine like terms first", eq:"4x + 3x - 5 = 16", ans:"3", steps:[
+  {eq:"{1:4x} + {1:3x} {_:- 5} = 16",
+   say:"First look for **like terms**. `4x` and `3x` are both “`x` things”, so we can combine them: 4 x's plus 3 x's is 7 x's.",
+   why:"Like terms have exactly the same letter part. `4x` and `3x` match. The plain number `5` is a different kind of thing, so it cannot join them."},
+  {eq:"{g@A:7x} {_:- 5} = 16",
+   say:"`4x + 3x = 7x`. Now it is a normal two-step equation."},
+  {eq:"7x {_:- 5} {o:+ 5} = 16 {o@R:+ 5}", op:"+ 5",
+   say:"Undo `− 5` by adding 5 to **both sides**."},
+  {eq:"7x {c:- 5} {c:+ 5} = 16 {o@R:+ 5}",
+   say:"`− 5 + 5 = 0`."},
+  {eq:"7x = {g@R:21}",
+   say:"`16 + 5 = 21`."},
+  {eq:"7x {o:÷ 7} = 21 {o:÷ 7}", op:"÷ 7",
+   say:"Divide **both sides** by 7."},
+  {eq:"[{c:7}x|{c:7}] = [21|7]",
+   say:"The 7s cancel, leaving `x`."},
+  {eq:"{g@X:x} = {g:3}",
+   say:"`x = 3`."},
+  {eq:"4(3) + 3(3) {_:- 5} = 16", check:true,
+   say:"**Check:** put `x = 3` back into the original."},
+  {eq:"{g:16} = {g:16} {g:✓}", check:true,
+   say:"`12 + 9 − 5 = 16` ✓."}
+]},
+
+{ tag:"x on both sides", eq:"5x - 3 = 2x + 12", ans:"5", steps:[
+  {eq:"5x {_:- 3} = 2x {_:+ 12}",
+   say:"`x` is on **both** sides. Plan: collect all the `x`'s on one side, and all the plain numbers on the other.",
+   why:"We have 5 x's on the left and 2 x's on the right. It is easier to move the smaller group, so we remove `2x` from both sides."},
+  {eq:"5x {_:- 3} {o:- 2x} = 2x {_:+ 12} {o@R:- 2x}", op:"− 2x",
+   say:"Subtract `2x` from **both sides**."},
+  {eq:"{1:5x} {_:- 3} {1:- 2x} = {c:2x} {_@T:+ 12} {c@R:- 2x}",
+   say:"Right: `2x − 2x` cancels. Left: `5x` and `− 2x` are like terms."},
+  {eq:"{g@A:3x} {_:- 3} = {_@T:12}",
+   say:"`5x − 2x = 3x`. Now there are no `x`'s on the right."},
+  {eq:"3x {_:- 3} {o:+ 3} = 12 {o@R:+ 3}", op:"+ 3",
+   say:"Undo `− 3` by adding 3 to **both sides**."},
+  {eq:"3x {c:- 3} {c:+ 3} = 12 {o@R:+ 3}",
+   say:"`− 3 + 3 = 0`."},
+  {eq:"3x = {g@R:15}",
+   say:"`12 + 3 = 15`."},
+  {eq:"3x {o:÷ 3} = 15 {o:÷ 3}", op:"÷ 3",
+   say:"Divide **both sides** by 3."},
+  {eq:"[{c:3}x|{c:3}] = [15|3]",
+   say:"The 3s cancel."},
+  {eq:"{g@X:x} = {g:5}",
+   say:"`x = 5`."},
+  {eq:"5(5) {_:- 3} = 2(5) {_:+ 12}", check:true,
+   say:"**Check:** put `x = 5` into **both** sides of the original."},
+  {eq:"{g:22} = {g:22} {g:✓}", check:true,
+   say:"Left: `25 − 3 = 22`. Right: `10 + 12 = 22` ✓."}
+]},
+
+{ tag:"Brackets and x on both sides", eq:"3(x - 2) = 2x + 1", ans:"7", steps:[
+  {eq:"3(x - 2) = 2x {_:+ 1}",
+   say:"Brackets first. `3(x − 2)` means 3 times **everything** inside the bracket."},
+  {eq:"{1:3 · x} {1:- 3 · 2} = 2x {_:+ 1}",
+   say:"Multiply the 3 by **each** term inside: `3 · x` and `3 · 2`."},
+  {eq:"{g@A:3x} {_:- 6} = 2x {_:+ 1}",
+   say:"`3 · x = 3x` and `3 · 2 = 6`."},
+  {eq:"3x {_:- 6} {o:- 2x} = 2x {_:+ 1} {o@R:- 2x}", op:"− 2x",
+   say:"`x` is on both sides. Subtract `2x` from **both sides**."},
+  {eq:"{1@A:3x} {_:- 6} {1:- 2x} = {c:2x} {_@T:+ 1} {c@R:- 2x}",
+   say:"Right: `2x − 2x` cancels. Left: `3x` and `− 2x` are like terms."},
+  {eq:"{g@X:x} {_:- 6} = {_@T:1}",
+   say:"`3x − 2x = x`."},
+  {eq:"{_@X:x} {_:- 6} {o:+ 6} = 1 {o@R:+ 6}", op:"+ 6",
+   say:"Add 6 to **both sides**."},
+  {eq:"{_@X:x} {c:- 6} {c:+ 6} = 1 {o@R:+ 6}",
+   say:"`− 6 + 6 = 0`."},
+  {eq:"{_@X:x} = {g@R:7}",
+   say:"`1 + 6 = 7`, so `x = 7`."},
+  {eq:"3(7 {_:- 2}) = 2(7) {_:+ 1}", check:true,
+   say:"**Check:** put `x = 7` into both sides of the original."},
+  {eq:"{g:15} = {g:15} {g:✓}", check:true,
+   say:"Left: `3 × 5 = 15`. Right: `14 + 1 = 15` ✓."}
+]},
+
+{ tag:"Minus sign in front of a bracket", eq:"10 - (x + 3) = 2x - 5", ans:"4", steps:[
+  {eq:"10 {_:- (x + 3)} = 2x {_:- 5}",
+   say:"A **minus sign in front of a bracket** flips the sign of everything inside.",
+   why:"`−(x + 3)` means `−1 × (x + 3)`. Multiply −1 by each term: `−1 · x = −x` and `−1 · 3 = −3`."},
+  {eq:"10 {1:- x} {1:- 3} = 2x {_:- 5}",
+   say:"`−(x + 3)` becomes `− x − 3`. Both signs flipped.",
+   warn:"Common slip: writing `10 − x + 3`. The minus sign hits the 3 too!"},
+  {eq:"{g@N:7} {_:- x} = 2x {_:- 5}",
+   say:"Combine the plain numbers: `10 − 3 = 7`."},
+  {eq:"7 {_:- x} {o:+ x} = 2x {_:- 5} {o@R:+ x}", op:"+ x",
+   say:"The right side has more `x`'s (`2x` against `−x`), so add `x` to **both sides** to avoid negative `x`'s."},
+  {eq:"7 {c:- x} {c:+ x} = {1:2x} {_@T:- 5} {1@R:+ x}",
+   say:"Left: `− x + x = 0`. Right: `2x` and `+ x` are like terms."},
+  {eq:"7 = {g@A:3x} {_@T:- 5}",
+   say:"`2x + x = 3x`."},
+  {eq:"7 {o:+ 5} = 3x {_@T:- 5} {o@R:+ 5}", op:"+ 5",
+   say:"Add 5 to **both sides**."},
+  {eq:"7 {o:+ 5} = 3x {c@T:- 5} {c@R:+ 5}",
+   say:"On the right, `− 5 + 5` cancels."},
+  {eq:"{g@N:12} = 3x",
+   say:"`7 + 5 = 12`."},
+  {eq:"12 {o:÷ 3} = 3x {o:÷ 3}", op:"÷ 3",
+   say:"Divide **both sides** by 3."},
+  {eq:"[12|3] = [{c:3}x|{c:3}]",
+   say:"The 3s cancel on the right."},
+  {eq:"{g:4} = x",
+   say:"`4 = x`. That is the same as `x = 4`: it does not matter which side `x` is on."},
+  {eq:"10 {_:- (4 + 3)} = 2(4) {_:- 5}", check:true,
+   say:"**Check:** put `x = 4` into the original."},
+  {eq:"{g:3} = {g:3} {g:✓}", check:true,
+   say:"Left: `10 − 7 = 3`. Right: `8 − 5 = 3` ✓."}
+]},
+
+{ tag:"Fractions: clear them with the LCD", eq:"[x + 2|3] - [x - 1|4] = 2", ans:"13", steps:[
+  {eq:"[x + 2|3] - [x - 1|4] = 2",
+   say:"Two fractions with different bottoms, 3 and 4. Trick: multiply **every term** by the **LCD**, the smallest number that both 3 and 4 go into. That is **12**.",
+   why:"The LCD (lowest common denominator) is the smallest number that both bottoms divide into evenly. Multiply by it and every bottom disappears."},
+  {eq:"{o:12 ·} [x + 2|3] - {o:12 ·} [x - 1|4] = {o:12 ·} 2", op:"× 12",
+   say:"Multiply **every** term on **both sides** by 12."},
+  {eq:"{g:4}(x + 2) - {g:3}(x - 1) = {g:24}",
+   say:"Each 12 cancels with its bottom: `12 ÷ 3 = 4` and `12 ÷ 4 = 3`. No more fractions! On the right, `12 · 2 = 24`.",
+   why:"`12 · (x + 2)/3` is the same as `(12 ÷ 3) · (x + 2)`, which is `4(x + 2)`. In the same way `12 · (x − 1)/4 = 3(x − 1)`."},
+  {eq:"{1:4x} {2:+ 8} {1:- 3x} {2:+ 3} = 24",
+   say:"Expand the brackets: `4(x + 2) = 4x + 8` and `−3(x − 1) = −3x + 3`. The `x` terms are blue, the plain numbers purple.",
+   warn:"Watch the signs: `−3 × (−1) = +3`."},
+  {eq:"x {_:+ 11} = 24",
+   say:"`4x − 3x = x` and `8 + 3 = 11`."},
+  {eq:"x {_:+ 11} {o:- 11} = 24 {o@R:- 11}", op:"− 11",
+   say:"Subtract 11 from **both sides**."},
+  {eq:"x {c:+ 11} {c:- 11} = 24 {o@R:- 11}",
+   say:"`+ 11 − 11 = 0`."},
+  {eq:"x = {g@R:13}",
+   say:"`24 − 11 = 13`, so `x = 13`."},
+  {eq:"[13 + 2|3] - [13 - 1|4] = 2", check:true,
+   say:"**Check:** put `x = 13` back in."},
+  {eq:"{g:5} - {g:3} = 2", check:true,
+   say:"`15 ÷ 3 = 5` and `12 ÷ 4 = 3`."},
+  {eq:"{g:2} = {g:2} {g:✓}", check:true,
+   say:"`5 − 3 = 2` ✓."}
+]},
+
+{ tag:"Word problem with decimals", eq:"0.5x + 1.2 = 3.7", ans:"5",
+  words:"A taxi charges a base fee of $1.20 plus $0.50 for every kilometre. Stanley's fare was $3.70. How many kilometres did he ride?",
+  steps:[
+  {eq:"0.5x {_:+ 1.2} = 3.7",
+   say:"Let `x` be the number of kilometres. Cost = `0.5` per km times `x`, plus the `1.2` base fee, and the total is `3.7`."},
+  {eq:"{o:10 ×} (0.5x + 1.2) = {o@R:10 ×} 3.7", op:"× 10",
+   say:"Decimals are annoying. Multiply **both sides** by 10 to turn them into whole numbers.",
+   why:"Multiplying by 10 moves every decimal point one place right: `0.5 → 5`, `1.2 → 12`, `3.7 → 37`. The equation stays balanced because we did it to everything."},
+  {eq:"{g@A:5x} {g:+ 12} = {g@R:37}",
+   say:"`10 × 0.5x = 5x`, `10 × 1.2 = 12`, `10 × 3.7 = 37`."},
+  {eq:"5x {_:+ 12} {o:- 12} = 37 {o@R:- 12}", op:"− 12",
+   say:"Subtract 12 from **both sides**."},
+  {eq:"5x {c:+ 12} {c:- 12} = 37 {o@R:- 12}",
+   say:"`+ 12 − 12 = 0`."},
+  {eq:"5x = {g@R:25}",
+   say:"`37 − 12 = 25`."},
+  {eq:"5x {o:÷ 5} = 25 {o:÷ 5}", op:"÷ 5",
+   say:"Divide **both sides** by 5."},
+  {eq:"[{c:5}x|{c:5}] = [25|5]",
+   say:"The 5s cancel."},
+  {eq:"{g@X:x} = {g:5}",
+   say:"`x = 5`. Stanley rode **5 kilometres**."},
+  {eq:"0.5(5) {_:+ 1.2} = 3.7", check:true,
+   say:"**Check:** put `x = 5` back in."},
+  {eq:"{g:3.7} = {g:3.7} {g:✓}", check:true,
+   say:"`2.5 + 1.2 = 3.7` ✓."}
+]}
+];
+/*PROBLEMS_END*/
+
+/* ====================================================================
+   Rendering engine
+   ==================================================================== */
+function esc(s){return s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");}
+function matchClose(s,i,open,close){
+  let d=0;
+  for(let j=i;j<s.length;j++){
+    if(s[j]===open)d++;
+    else if(s[j]===close){d--; if(d===0)return j;}
+  }
+  throw new Error("Unbalanced "+open+" in: "+s);
+}
+function topPipe(s){
+  let d=0;
+  for(let i=0;i<s.length;i++){
+    if(s[i]==="["||s[i]==="{")d++;
+    else if(s[i]==="]"||s[i]==="}")d--;
+    else if(s[i]==="|"&&d===0)return i;
+  }
+  throw new Error("Fraction without | in: "+s);
+}
+const CLS={"":"","_":"","1":"c1","2":"c2","g":"gr","o":"op","c":"cx"};
+function textSeg(t){
+  return esc(t).replace(/-/g,"−").replace(/x/g,"<i>x</i>");
+}
+function render(s){
+  let out="",buf="",i=0;
+  const flush=()=>{if(buf){out+=textSeg(buf);buf="";}};
+  while(i<s.length){
+    const ch=s[i];
+    if(ch==="{"){
+      const j=matchClose(s,i,"{","}");
+      const inner=s.slice(i+1,j);
+      const m=/^([^:@]*)(?:@\w+)?:/.exec(inner);
+      if(!m)throw new Error("Bad group: "+inner);
+      flush();
+      const c=CLS[m[1]];
+      out+=c?`<span class="${c}">${render(inner.slice(m[0].length))}</span>`:render(inner.slice(m[0].length));
+      i=j+1;
+    }else if(ch==="["){
+      const j=matchClose(s,i,"[","]");
+      const inner=s.slice(i+1,j);
+      const k=topPipe(inner);
+      flush();
+      out+=`<span class="frac"><span>${render(inner.slice(0,k))}</span><span>${render(inner.slice(k+1))}</span></span>`;
+      i=j+1;
+    }else{buf+=ch;i++;}
+  }
+  flush();
+  return out;
+}
+function splitChips(s){
+  const chips=[];let cur="",d=0;
+  for(const ch of s){
+    if("([{".includes(ch))d++;
+    if(")]}".includes(ch))d--;
+    if(/\s/.test(ch)&&d===0){if(cur){chips.push(cur);cur="";}}
+    else cur+=ch;
+  }
+  if(cur)chips.push(cur);
+  return chips;
+}
+function stripMarkup(raw){
+  return raw.replace(/\{[^:{}@]*(?:@\w+)?:/g,"").replace(/[{}\[\]]/g,"").replace(/\|/g,"/");
+}
+function chipKey(raw,counts){
+  const m=/^\{([^:@]*)@(\w+):/.exec(raw);
+  if(m&&matchClose(raw,0,"{","}")===raw.length-1)return "@"+m[2];
+  const plain=stripMarkup(raw);
+  const k=plain==="x"?"x":plain;
+  counts[k]=(counts[k]||0)+1;
+  return k+"#"+counts[k];
+}
+function rich(s){
+  return s.split("`").map((seg,i)=>{
+    if(i%2===1)return `<span class="m">${render(seg)}</span>`;
+    return esc(seg).replace(/\*\*(.+?)\*\*/g,"<b>$1</b>");
+  }).join("");
+}
+function buildLine(eq,op){
+  const line=document.createElement("div");
+  line.className="eqline";
+  const counts={};
+  for(const raw of splitChips(eq)){
+    const c=document.createElement("span");
+    c.className="chip";
+    c.dataset.key=raw==="="?"=":chipKey(raw,counts);
+    if(raw==="="){c.classList.add("eq");if(op)c.classList.add("wob");}
+    c.innerHTML=render(raw);
+    line.appendChild(c);
+  }
+  return line;
+}
+
+/* ====================================================================
+   App
+   ==================================================================== */
+const $=s=>document.querySelector(s);
+const board=$("#board"),nextBtn=$("#next"),backBtn=$("#back");
+let pi=0,shown=0;
+let prog={};
+try{prog=JSON.parse(localStorage.getItem("eqpractice")||"{}");}catch(e){prog={};}
+function save(){try{localStorage.setItem("eqpractice",JSON.stringify(prog));}catch(e){}}
+
+document.querySelectorAll(".mm").forEach(el=>{el.innerHTML=`<span style="font-family:var(--math)">${render(el.dataset.m)}</span>`;});
+
+function buildTabs(){
+  const t=$("#tabs");t.innerHTML="";
+  PROBLEMS.forEach((p,i)=>{
+    const b=document.createElement("button");
+    b.className="tab"+(i===pi?" on":"")+(prog[i]?" done":"");
+    b.textContent=i+1;
+    b.setAttribute("role","tab");
+    b.setAttribute("aria-label","Problem "+(i+1)+(prog[i]?" (done)":""));
+    b.onclick=()=>select(i);
+    t.appendChild(b);
+  });
+}
+function select(i){
+  pi=i;shown=0;
+  const p=PROBLEMS[i];
+  $("#tag").textContent="Problem "+(i+1)+" of "+PROBLEMS.length+" · "+p.tag;
+  $("#prob").innerHTML=render(p.eq);
+  const w=$("#words");
+  if(p.words){w.hidden=false;w.textContent=p.words;}else{w.hidden=true;}
+  $("#ans").value="";$("#fb").textContent="";$("#fb").className="fb";
+  board.innerHTML='<div class="placeholder">Try it on paper first, then click <b>Next step</b>.</div>';
+  buildTabs();update();
+  try{history.replaceState(null,"","#"+(i+1));}catch(e){}
+  const on=document.querySelector(".tab.on");
+  if(on&&on.scrollIntoView)on.scrollIntoView({block:"nearest",inline:"center"});
+  window.scrollTo({top:0,behavior:"smooth"});
+}
+function update(){
+  const n=PROBLEMS[pi].steps.length;
+  $("#count").textContent=shown===0?"Ready":"Step "+shown+" of "+n;
+  $("#bar").style.width=(100*shown/n)+"%";
+  backBtn.disabled=shown===0;
+  const last=pi===PROBLEMS.length-1;
+  if(shown<n){nextBtn.textContent="Next step ▶";nextBtn.disabled=false;}
+  else if(!last){nextBtn.textContent="Next problem ▶";nextBtn.disabled=false;}
+  else{nextBtn.textContent="All done!";nextBtn.disabled=true;}
+}
+function addStep(k){
+  const p=PROBLEMS[pi],st=p.steps[k];
+  if(k===0)board.innerHTML="";
+  const prevStep=board.querySelector(".step:last-of-type");
+  const prevLine=prevStep?prevStep.querySelector(".eqline"):null;
+  board.querySelectorAll(".step").forEach(s=>s.classList.add("old"));
+
+  const node=document.createElement("div");
+  node.className="step"+(st.check?" check":"");
+  if(st.op){
+    const pill=document.createElement("div");
+    pill.className="oppill";
+    pill.innerHTML=`<span>Both sides: ${render(st.op)}</span>`;
+    node.appendChild(pill);
+  }
+  const line=buildLine(st.eq,st.op);
+  node.appendChild(line);
+  const say=document.createElement("div");
+  say.className="say";say.innerHTML=rich(st.say);
+  node.appendChild(say);
+  if(st.why){
+    const row=document.createElement("div");row.className="whyrow";
+    const b=document.createElement("button");b.className="whybtn";b.textContent="Why?";
+    const w=document.createElement("div");w.className="why";w.innerHTML=rich(st.why);
+    b.onclick=()=>{w.classList.toggle("open");b.textContent=w.classList.contains("open")?"Hide":"Why?";};
+    row.appendChild(b);node.appendChild(row);node.appendChild(w);
+  }
+  if(st.warn){
+    const w=document.createElement("div");w.className="warn";w.innerHTML="⚠️ "+rich(st.warn);
+    node.appendChild(w);
+  }
+  const isLast=k===p.steps.length-1;
+  if(isLast){
+    node.classList.add("final");
+    const ban=document.createElement("div");ban.className="banner";
+    ban.textContent=pi===PROBLEMS.length-1
+      ? "You finished all 10! Next: try Part 10 (Gauntlet B) in your handout."
+      : "Solved! Always check your answer by substituting it back in.";
+    node.appendChild(ban);
+  }
+  board.appendChild(node);
+
+  /* FLIP: chips with the same key fly from their old position */
+  const prevMap=new Map();
+  if(prevLine)prevLine.querySelectorAll(".chip").forEach(c=>prevMap.set(c.dataset.key,c));
+  let idx=0;
+  line.querySelectorAll(".chip").forEach(c=>{
+    const old=prevMap.get(c.dataset.key);
+    if(old){
+      const a=old.getBoundingClientRect(),b=c.getBoundingClientRect();
+      const dx=a.left-b.left,dy=a.top-b.top;
+      if(Math.abs(dx)+Math.abs(dy)>1&&!c.classList.contains("wob")){
+        c.style.transition="none";
+        c.style.transform=`translate(${dx}px,${dy}px)`;
+        requestAnimationFrame(()=>requestAnimationFrame(()=>{
+          c.style.transition="transform .8s cubic-bezier(.22,.9,.25,1)";
+          c.style.transform="";
+        }));
+      }
+    }else if(c.querySelector(".op")||c.classList.contains("op")){
+      c.classList.add("drop");c.style.animationDelay=(idx*70)+"ms";
+    }else{
+      c.classList.add("pop");c.style.animationDelay=(120+idx*60)+"ms";
+    }
+    idx++;
+  });
+  node.scrollIntoView({block:"nearest",behavior:"smooth"});
+}
+function next(){
+  const n=PROBLEMS[pi].steps.length;
+  if(shown<n){
+    addStep(shown);shown++;
+    if(shown===n){prog[pi]=true;save();buildTabs();}
+    update();
+  }else if(pi<PROBLEMS.length-1){select(pi+1);}
+}
+function back(){
+  if(shown===0)return;
+  const steps=board.querySelectorAll(".step");
+  steps[steps.length-1].remove();
+  shown--;
+  const rest=board.querySelectorAll(".step");
+  if(rest.length)rest[rest.length-1].classList.remove("old");
+  else board.innerHTML='<div class="placeholder">Try it on paper first, then click <b>Next step</b>.</div>';
+  update();
+}
+nextBtn.onclick=next;backBtn.onclick=back;
+$("#reset").onclick=()=>select(pi);
+
+function parseNum(s){
+  s=s.replace(/\s+/g,"").replace(/^x=/i,"").replace(/−/g,"-");
+  let m=/^(-?\d+)\/(\d+)$/.exec(s);
+  if(m&&+m[2]!==0)return [+m[1],+m[2]];
+  m=/^(-?\d+)(?:\.(\d+))?$/.exec(s);
+  if(m){const d=m[2]?m[2].length:0;const den=Math.pow(10,d);
+    const num=Math.round(parseFloat(s)*den);return [num,den];}
+  return null;
+}
+function checkAnswer(){
+  const v=parseNum($("#ans").value);
+  const fb=$("#fb");
+  if(!v){fb.className="fb no";fb.textContent="Type a number, like 12, -3, or 3/2.";return;}
+  const a=parseNum(PROBLEMS[pi].ans);
+  if(v[0]*a[1]===a[0]*v[1]){
+    fb.className="fb ok";fb.textContent="✓ Correct! Now click Next step to compare your method.";
+    prog[pi]=true;save();buildTabs();
+  }else{
+    fb.className="fb no";fb.textContent="Not yet. Check your steps, or click Next step for the first move.";
+  }
+}
+$("#chk").onclick=checkAnswer;
+$("#ans").addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();checkAnswer();}});
+document.addEventListener("keydown",e=>{
+  if(e.target&&e.target.tagName==="INPUT")return;
+  if(e.key==="ArrowRight"||e.key===" "){e.preventDefault();if(!nextBtn.disabled)next();}
+  else if(e.key==="ArrowLeft"){e.preventDefault();back();}
+});
+
+(function init(){
+  let start=0;
+  const h=parseInt((location.hash||"").slice(1),10);
+  if(h>=1&&h<=PROBLEMS.length)start=h-1;
+  select(start);
+})();
+</script>
+</body>
+</html>
